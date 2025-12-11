@@ -85,4 +85,7 @@ DerivedDataCache/*
 LocalDerivedDataCache/*
 
 # Temp
-/Source/Temp/*
+Temp/*
+
+# Third Party Asset List
+Source/ThirdParty/ModelClassifierCoreLibrary/*.txt
