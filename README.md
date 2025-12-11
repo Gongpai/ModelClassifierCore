@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin http://cloud.kohtnas.com:52733/publicgroup/modelclassifiercore.git
+git remote add origin https://git.kohtnas.com/publicgroup/modelclassifiercore.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](http://cloud.kohtnas.com:52733/publicgroup/modelclassifiercore/-/settings/integrations)
+- [ ] [Set up project integrations](https://git.kohtnas.com/publicgroup/modelclassifiercore/-/settings/integrations)
 
 ## Collaborate with your team
 
