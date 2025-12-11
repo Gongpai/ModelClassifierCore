@@ -1,0 +1,56 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.3.2",
+	"FriendlyName": "ModelClassifierCore",
+	"Description": "AI-based 3D Model Classifier",
+	"Category": "Other",
+	"CreatedBy": "KongZEE",
+	"CreatedByURL": "https://git.kohtnas.com/publicgroup/modelclassifiercore",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ModelClassifierCore",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [],
+			"Config": "Editor"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ProceduralMeshComponent",
+			"Enabled": true
+		},
+		{
+			"Name": "GeometryProcessing",
+			"Enabled": true
+		},
+		{
+			"Name": "GeometryScripting",
+			"Enabled": true
+		},
+        {
+            "Name": "NNERuntimeORT",
+            "Enabled": true
+        },
+        {
+            "Name": "NNERuntimeBasicCpu",
+            "Enabled": true
+        },
+        {
+          "Name": "OpenCV",
+          "Enabled": true
+        },
+      {
+        "Name": "MLAdapter",
+        "Enabled": true
+      }
+	]
+}
