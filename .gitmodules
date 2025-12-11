@@ -1,9 +1,6 @@
 [submodule "Source/ThirdParty/ModelClassifierCoreLibrary/assimp"]
 	path = Source/ThirdParty/ModelClassifierCoreLibrary/assimp
 	url = https://git.kohtnas.com/Kong_root/assimp.git
-[submodule "Source/ThirdParty/ModelClassifierCoreLibrary/fbxsdk"]
-	path = Source/ThirdParty/ModelClassifierCoreLibrary/fbxsdk
-	url = https://git.kohtnas.com/Kong_root/fbx-sdk.git
 [submodule "Source/ThirdParty/ModelClassifierCoreLibrary/glfw"]
 	path = Source/ThirdParty/ModelClassifierCoreLibrary/glfw
 	url = https://github.com/glfw/glfw.git
