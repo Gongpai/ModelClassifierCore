@@ -136,7 +136,7 @@ A stable public version will be released when:
 
 ```
 cd existing_repo
-git remote add origin https://git.kohtnas.com/publicgroup/modelclassifiercore.git
+git remote add origin https://github.com/Gongpai/ModelClassifierCore.git
 git branch -M main
 git push -uf origin main
 ```
