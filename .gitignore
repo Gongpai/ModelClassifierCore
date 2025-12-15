@@ -89,3 +89,7 @@ Temp/*
 
 # Third Party Asset List
 Source/ThirdParty/ModelClassifierCoreLibrary/*.txt
+
+#fbx-sdk
+Source/ThirdParty/ModelClassifierCoreLibrary/fbxsdk/*
+!Source/ThirdParty/ModelClassifierCoreLibrary/fbxsdk/README.md
