@@ -21,18 +21,21 @@ namespace ModelClassifierCore
 		TObjectPtr<UClassifierNNEModel> ClassifierNNEModelData;
 		UTextFeaturesAsset* TextFeaturesAsset;
 		UImageEncoderDataAsset* ImageEncoderDataAsset;
+		
 		ENNEInstanceType RuntimeType = ENNEInstanceType::GPU;
+		
 		std::vector<float> InputData;
+		TArray<std::vector<float>> OutputDataLists;
+		
 		TSharedPtr<UE::NNE::IModelInstanceCPU> ImageModelInstance;
 		TSharedPtr<UE::NNE::IModelCPU> ImageModel;
 		TArray<UE::NNE::FTensorBindingCPU> InputBindings;
 		TArray<UE::NNE::FTensorBindingCPU> OutputBindings;
-		TArray<std::vector<float>> OutputDataLists;
 		
 		bool bIsRunning = false;
 		
 	public:
-		FNNEImageFeatures() = default;
+		FNNEImageFeatures(){};
 		~FNNEImageFeatures() = default;
 		
 		//Import & Setting
@@ -41,7 +44,7 @@ namespace ModelClassifierCore
 		void SetClassifierNNEModelData(TObjectPtr<UClassifierNNEModel> InNNEModelData);
 		void SetRuntimeType(ENNEInstanceType InRuntimeType);
 		void SetInputData(const std::vector<unsigned char>& Pixels, ImageSize ImageSize, bool bFlipY = false);
-		bool RunClassifyRenderedImage(ImageSize ImageSize, int& OutResultIndex);
+		bool RunClassifyRenderedImage(ImageSize ImageSize, int& OutBestIdx);
 		bool Initialize();
 		void Cleanup();
 	};

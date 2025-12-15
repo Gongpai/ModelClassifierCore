@@ -18,18 +18,19 @@ namespace ModelClassifierCore
 	{
 		UClassifierNNEModel* ClassifierNNEModelData;
 		UTextFeaturesAsset* TextFeaturesAsset;
+		
 		ENNEInstanceType RuntimeType = ENNEInstanceType::GPU;
+		
 		TSharedPtr<UE::NNE::IModelInstanceCPU> TextModelInstance;
 		TSharedPtr<UE::NNE::IModelCPU> TextModel;
 		TArray<UE::NNE::FTensorBindingCPU> InputBindings;
 		TArray<UE::NNE::FTensorBindingCPU> OutputBindings;
+		
 		TArray<TSharedPtr<TArray<uint8>>> InputRawBuffers;
+		
 		int CurrentProgress = 0;
 		int MaxProgress = 0;
 		int TotalLabels = 0;
-		int CurrentProcessLabels = 0;
-		int curBatch = 0;
-		int CurrentBatch = 0;
 		
 	public:
 		FNNETextFeatures() = default;
@@ -47,9 +48,5 @@ namespace ModelClassifierCore
 		
 		int GetMaxProgress();
 		int GetProgress();
-		int GetTotalLabels();
-		int GetProcessLabel();
-		int GetTotalBatch();
-		int GetCurrentBatch();
 	};
 }

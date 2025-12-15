@@ -316,3 +316,95 @@ TSharedPtr<SObjectPropertyEntryBox> FSettingComponent::CreateObjectPropertyEntry
 	
 	return EntryBox;
 }
+
+TSharedPtr<SProgressBar> FSettingComponent::CreateProgressBar(TSharedPtr<FSettingData<TSharedPtr<void>>> SettingData, TSharedPtr<SBox>& OutBox)
+{
+	if (!SettingData.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid setting!"));
+		return SNew(SProgressBar);
+	}
+	
+	if (!SettingData->GetValue().IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("SettingData->GetValue() is null for setting: %s"), *SettingData->Name);
+		return SNew(SProgressBar);
+	}
+	
+	TSharedPtr<SProgressBar> ProgressBar = SNew(SProgressBar)
+	.Percent_Lambda([SettingData]() -> float {
+		if (!SettingData.IsValid())
+		{
+			return 0.f;
+		}
+
+		if (!SettingData->GetAction.IsBound())
+		{
+			return 0.f;
+		}
+
+		TSharedPtr<void> Value = SettingData->GetAction.Execute();
+		TSharedPtr<FProgressBarData> Data = StaticCastSharedPtr<FProgressBarData>(Value);
+
+		if (!Data.IsValid() || Data->Max <= 0)
+		{
+			return 0.f;
+		}
+		
+		return Data->Value / Data->Max;
+	})
+	.BackgroundImage(FAppStyle::GetNoBrush())
+	.BarFillType(EProgressBarFillType::LeftToRight)
+	.FillColorAndOpacity(FLinearColor(0, 0, 255, 1));
+	
+	TSharedPtr<SVerticalBox> VerticalBox = SNew(SVerticalBox);
+	VerticalBox->AddSlot()
+	.AutoHeight().FillHeight(0.8f)
+	[
+		SNew(SBox)
+			.Padding(0.0f)
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.Justification(ETextJustify::Center).Text_Lambda([SettingData]()
+				{
+					if (!SettingData.IsValid())
+					{
+						return FText::GetEmpty();
+					}
+
+					if (SettingData->GetAction.IsBound())
+					{
+						TSharedPtr<void> Value = SettingData->GetAction.Execute();
+						TSharedPtr<FProgressBarData> Data = StaticCastSharedPtr<FProgressBarData>(Value);
+
+						if (Data.IsValid())
+						{
+							return FText::FromString(Data->Message);
+						}
+					}
+
+					auto DefaultValue = StaticCastSharedPtr<FProgressBarData>(SettingData->GetValue());
+					return DefaultValue.IsValid()
+						? FText::FromString(DefaultValue->Message)
+						: FText::GetEmpty();
+				})
+			]
+	];
+	VerticalBox->AddSlot()
+	.AutoHeight().FillHeight(0.2f)
+	[
+		ProgressBar.ToSharedRef()
+	];
+	
+	OutBox = SNew(SBox)
+	.Padding(0.0)
+	.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Fill)
+	[
+		VerticalBox.ToSharedRef()
+	];
+	
+	return ProgressBar;
+}

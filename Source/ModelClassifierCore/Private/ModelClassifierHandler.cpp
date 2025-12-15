@@ -1,37 +1,39 @@
-﻿#include "ModelClassifierData.h"
+﻿#include "ModelClassifierHandler.h"
+
+#include "Utilities/BoyerMooreMajority.h"
 
 namespace ModelClassifierCore
 {
-	FModelClassifierData::FModelClassifierData(FModelClassifierCoreModule* InCore, FString Name, EFileType Type,  FString ModelSavePath)
+	FModelClassifierHandler::FModelClassifierHandler(FModelClassifierCoreModule* InCore, FString Name, EFileType Type,  FString ModelSavePath)
 	{
 		Core = InCore;
 		SetName(Name);
 		SetFileType(Type, ModelSavePath);
 	}
 
-	bool FModelClassifierData::RunRenderAndClassifier(TSharedPtr<FNNEImageFeatures> NNERuntime, TSharedPtr<FAssimpScene> AiScene, int& OutResult)
+	bool FModelClassifierHandler::RunRenderAndClassifier(TSharedPtr<FNNEImageFeatures> NNERuntime, TSharedPtr<FAssimpScene> AiScene, int& OutResult)
 	{
 		TSharedPtr<FRenderMesh> RenderMesh = MakeShareable(new FRenderMesh());
-		TMap<int32, int32> PredictCount;
+		TArray<int32> Predicts;
 		RenderMesh.Get()->SetAssimpScene(AiScene);
-					
-		RenderMesh.Get()->Render(RenderCount, RotateMode, [&NNERuntime, &AiScene, this, &PredictCount](std::vector<unsigned char> OutPixel, std::vector<float> OutFloatPixels)
+		RenderMesh->SetImageFormat(ImageFormat);
+		RenderMesh.Get()->Render(RenderCount, RotateMode, [&NNERuntime, &Predicts, this](std::vector<unsigned char> OutPixel, std::vector<float> OutFloatPixels)
 		{    
 			if (OutFloatPixels.size() > 0)
 			{
 				UE_LOG(LogTemp, Log, TEXT("Render Complete!"));
-
-				/*AsyncTask(ENamedThreads::GameThread, [this, OutPixel]()
+				
+				AsyncTask(ENamedThreads::GameThread, [this, OutPixel]()
 				{
-					UE_LOG(LogTemp, Log, TEXT("Make Brush From Texture!"));
+					PixelData.Add(OutPixel);
 					
-					Brushes.Add(FRenderMesh::MakeBrushFromTexture(FRenderMesh::MakeTexture2DFromPixels(OutPixel, GetRenderSize())));
-					
-					if (GetImageRenderedAction().IsBound())
+					UE_LOG(LogTemp, Log, TEXT("Trigger OnImageRendered"));
+					if (OnImageRendered.IsBound())
 					{
-						GetImageRenderedAction().Broadcast(OutPixel);
+						UE_LOG(LogTemp, Log, TEXT("OnImageRendered Can Trigger"));
+						OnImageRendered.Broadcast(OutPixel);
 					}
-				});*/
+				});
 
 				if (NNERuntime.IsValid())
 				{
@@ -42,24 +44,25 @@ namespace ModelClassifierCore
 					NNERuntime->SetRuntimeType(ENNEInstanceType::CPU);
 					NNERuntime->Initialize();
 					
-					int OutResultIndex = 0;
+					int OutResultIndex = -1;
 					
 					if (NNERuntime->RunClassifyRenderedImage(GetRenderSize(), OutResultIndex))
 					{
-						/*PredictCount.FindOrAdd(OutResultIndex)++;
-
+						UE_LOG(LogTemp, Log, TEXT("Run classify complete!"));
+						
 						AsyncTask(ENamedThreads::GameThread, [this, OutResultIndex]()
 						{
-							if (GetImageClassifiedAction().IsBound())
+							if (OnImageClassified.IsBound())
 							{
-								GetImageClassifiedAction().Broadcast(OutResultIndex);
+								OnImageClassified.Broadcast(OutResultIndex);
 							}
-						});*/
-						
+						});
 					}else
 					{
-						UE_LOG(LogTemp, Error, TEXT("Failed to run AI model"));
+						UE_LOG(LogTemp, Error, TEXT("Failed to run classify"));
 					}
+					
+					Predicts.Add(OutResultIndex);
 				}else
 				{
 					UE_LOG(LogTemp, Error, TEXT("NNE Model is invalid"));
@@ -70,48 +73,37 @@ namespace ModelClassifierCore
 			}
 		});
 
-		int32 MajorityLabel = -1;
-		int32 MaxCount = 0;
-		for (TPair<int32, int32> Predicted : PredictCount)
-		{
-			if (Predicted.Value > MaxCount)
-			{
-				MaxCount = Predicted.Value;
-				MajorityLabel = Predicted.Key;
-			}
-		}
-
-		OutResult = MajorityLabel;
+		OutResult = FBoyerMooreMajority::FindMajorityOrFirst<int32>(Predicts);
 		return true;
 	}
 
-	void FModelClassifierData::RunClassifier(TFunction<void(int)> OnComplete)
+	void FModelClassifierHandler::RunClassifier(TFunction<void(int)> OnComplete)
 	{
 		StartClassifier(ModelPath, FileType, OnComplete);
 	}
 
-	void FModelClassifierData::SetName(const FString& InName)
+	void FModelClassifierHandler::SetName(const FString& InName)
 	{
 		Name = InName;
 	}
 
-	FString FModelClassifierData::GetName() const
+	FString FModelClassifierHandler::GetName() const
 	{
 		return Name;
 	}
 
-	void FModelClassifierData::SetFileType(EFileType Type, FString InPath)
+	void FModelClassifierHandler::SetFileType(EFileType Type, FString InPath)
 	{
 		FileType = Type;
 		ModelPath = InPath;
 	}
 
-	EFileType FModelClassifierData::GetFileType() const
+	EFileType FModelClassifierHandler::GetFileType() const
 	{
 		return FileType;
 	}
 
-	FString FModelClassifierData::GetFileTypeString(EFileType InFileType)
+	FString FModelClassifierHandler::GetFileTypeString(EFileType InFileType)
 	{
 		switch (InFileType)
 		{
@@ -126,7 +118,7 @@ namespace ModelClassifierCore
 		}
 	}
 
-	void FModelClassifierData::StartClassifier(FString Path, EFileType Type, TFunction<void(int)> OnComplete)
+	void FModelClassifierHandler::StartClassifier(FString Path, EFileType Type, TFunction<void(int)> OnComplete)
 	{
 		if (Core == nullptr)
 		{
@@ -167,6 +159,7 @@ namespace ModelClassifierCore
 						{
 							TSharedPtr<FAssimpLibrary> AssimpLibrary = MakeShareable(new FAssimpLibrary());
 							TSharedPtr<FAssimpScene> AiScene;
+							
 							UE_LOG(LogTemp, Log, TEXT("Begin Writer StaticMesh To FBX Memory"));
 
 							if (AssimpLibrary.IsValid() && bIsValid)
@@ -188,8 +181,8 @@ namespace ModelClassifierCore
 									}
 									
 									bool bIsComplete = RunRenderAndClassifier(NNERuntime, AiScene, Result);
-								
-									AsyncTask(ENamedThreads::GameThread, [bIsComplete, OnComplete, &Result]()
+									
+									AsyncTask(ENamedThreads::GameThread, [this, bIsComplete, OnComplete, &Result]()
 									{
 										if (bIsComplete)
 										{
@@ -197,7 +190,9 @@ namespace ModelClassifierCore
 
 											if (OnComplete)
 											{
-												OnComplete(bIsComplete ? Result : -1);
+												ResultIndex = bIsComplete ? Result : -1;
+												
+												OnComplete(ResultIndex);
 											}
 										}else
 										{
@@ -266,15 +261,16 @@ namespace ModelClassifierCore
 					
 					bool bIsValid = RunRenderAndClassifier(NNERuntime, AiScene, Result);
 					
-					AsyncTask(ENamedThreads::GameThread, [bIsValid, Result, OnComplete]()
+					AsyncTask(ENamedThreads::GameThread, [this, bIsValid, Result, OnComplete]()
 					{
 						if (bIsValid)
 						{
 							if (OnComplete)
 							{
 								UE_LOG(LogTemp, Log, TEXT("Classifier Complete!"));
+								ResultIndex = bIsValid ? Result : -1;
 								
-								OnComplete(bIsValid ? Result : -1);
+								OnComplete(ResultIndex);
 							}
 						}else
 						{
@@ -299,37 +295,42 @@ namespace ModelClassifierCore
 		}
 	}
 
-	TArray<std::vector<unsigned char>> FModelClassifierData::GetPixelData()
+	TArray<std::vector<unsigned char>> FModelClassifierHandler::GetPixelData()
 	{
 		return PixelData;
 	}
 
-	TArray<FSlateBrush> FModelClassifierData::GetImageRenderBrushes()
-	{
-		return Brushes;
-	}
-
-	FImageRendered& FModelClassifierData::GetImageRenderedAction()
+	FImageRendered& FModelClassifierHandler::GetImageRenderedAction()
 	{
 		return OnImageRendered;
 	}
 
-	FImageClassified& FModelClassifierData::GetImageClassifiedAction()
+	void FModelClassifierHandler::ClearImageRenderedAction()
+	{
+		OnImageRendered.Clear();
+	}
+
+	FImageClassified& FModelClassifierHandler::GetImageClassifiedAction()
 	{
 		return OnImageClassified;
 	}
 
-	FString FModelClassifierData::GetModelPath() const
+	void FModelClassifierHandler::ClearImageClassifiedAction()
+	{
+		OnImageClassified.Clear();
+	}
+
+	FString FModelClassifierHandler::GetModelPath() const
 	{
 		return ModelPath;
 	}
 
-	void FModelClassifierData::SetRenderCount(int InRenderCount)
+	void FModelClassifierHandler::SetRenderCount(int InRenderCount)
 	{
 		RenderCount = InRenderCount;
 	}
 
-	int FModelClassifierData::GetRenderCount() const
+	int FModelClassifierHandler::GetRenderCount() const
 	{
 		switch (RotateMode)
 		{
@@ -344,38 +345,38 @@ namespace ModelClassifierCore
 		return RenderCount;
 	}
 
-	void FModelClassifierData::SetRotateMode(ERotateMode InRotateMode)
+	void FModelClassifierHandler::SetRotateMode(ERotateMode InRotateMode)
 	{
 		RotateMode = InRotateMode;
 	}
 
-	FString FModelClassifierData::GetRenderPath() const
+	FString FModelClassifierHandler::GetRenderPath() const
 	{
 		return ImageRenderPath;
 	}
 
-	void FModelClassifierData::SetModelPath(const FString& InPath)
+	void FModelClassifierHandler::SetModelPath(const FString& InPath)
 	{
 		ImageRenderPath = InPath;
 	}
 
-	void FModelClassifierData::SetRenderSize(ImageSize InSize)
+	void FModelClassifierHandler::SetRenderSize(ImageSize InSize)
 	{
 		RenderSize = InSize;
 	}
 
-	ImageSize FModelClassifierData::GetRenderSize()
+	ImageSize FModelClassifierHandler::GetRenderSize()
 	{
 		return RenderSize;
 	}
 
-	int FModelClassifierData::GetResultIndex() const
+	int FModelClassifierHandler::GetResultIndex() const
 	{
 		return ResultIndex;
 	}
 
-	void FModelClassifierData::SetResultClassifier(const int& InResultIndex)
+	void FModelClassifierHandler::SetImageFormat(EImageFormat InFormat)
 	{
-		ResultIndex = InResultIndex;
+		ImageFormat = InFormat;
 	}
 }

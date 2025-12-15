@@ -8,7 +8,8 @@ enum MODELCLASSIFIERCORE_API SettingType
 	DropDown = 3,
 	EditableTextBox = 4,
 	FileEditableTextBox = 5,
-	ObjectPropertyEntryBox = 6
+	ObjectPropertyEntryBox = 6,
+	ProgressBar = 7
 };
 
 template<typename T>
@@ -140,4 +141,14 @@ public:
 	FObjectPropertyEntryBoxData(const UClass* _Class) : Class(_Class) {}
 	const UClass* Class;
 	FAssetData Asset;
+};
+
+struct MODELCLASSIFIERCORE_API FProgressBarData
+{
+public:
+	FProgressBarData(){}
+	FProgressBarData(FString _Message, float _Max, float _Value) : Message(_Message), Max(_Max), Value(_Value) {}
+	FString Message;
+	float Max;
+	float Value;
 };

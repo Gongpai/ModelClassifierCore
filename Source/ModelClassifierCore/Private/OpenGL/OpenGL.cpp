@@ -207,15 +207,25 @@ namespace ModelClassifierCore
 
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glPixelStorei(GL_PACK_ALIGNMENT, 1);
-		std::vector<unsigned char> pixels(InRenderSize.width * InRenderSize.height * 4);
-		glReadPixels(0, 0, InRenderSize.width, InRenderSize.height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-		UE_LOG(LogTemp, Log, TEXT("Render readpixels size: %d (expected %d)"), pixels.size(), InRenderSize.width * InRenderSize.height * 4);
 		
-		stbi_flip_vertically_on_write(1);
+		std::vector<unsigned char> pixels(InRenderSize.width * InRenderSize.height * 4);
+		std::vector<unsigned char> pixelsForPNG(InRenderSize.width * InRenderSize.height * 4);
+		
+		glReadPixels(0, 0, InRenderSize.width, InRenderSize.height, ImageFormat == RGBA ? GL_RGBA : GL_BGRA, GL_UNSIGNED_BYTE, pixels.data());
+		UE_LOG(LogTemp, Log, TEXT("Render readpixels size: %d (expected %d)"), pixels.size(), InRenderSize.width * InRenderSize.height * 4);
 
 		UE_LOG(LogTemp, Log, TEXT("Save image to: %s"), *OutputPath);
 		std::string OutputPathStr = TCHAR_TO_ANSI(*OutputPath);
-		stbi_write_png(OutputPathStr.c_str(), InRenderSize.width, InRenderSize.height, 4, pixels.data(), InRenderSize.width * 4);
+		
+		if (ImageFormat == BGRA)
+		{
+			glReadPixels(0, 0, InRenderSize.width, InRenderSize.height, GL_RGBA, GL_UNSIGNED_BYTE, pixelsForPNG.data());
+		}else
+		{
+			pixelsForPNG = pixels;
+		}
+		stbi_flip_vertically_on_write(1);
+		stbi_write_png(OutputPathStr.c_str(), InRenderSize.width, InRenderSize.height, 4, pixelsForPNG.data(), InRenderSize.width * 4);
 
 		OutPixels = pixels;
 		

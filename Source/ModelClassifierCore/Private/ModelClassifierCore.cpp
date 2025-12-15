@@ -69,7 +69,7 @@ namespace ModelClassifierCore
 		return Result;
 	}
 
-	TSharedPtr<UModelClassifierCoreSetting> FModelClassifierCoreModule::GetConfig()
+	TWeakObjectPtr<UModelClassifierCoreSetting> FModelClassifierCoreModule::GetConfig()
 	{
 		return CoreEditorSetting;
 	}
@@ -104,19 +104,16 @@ namespace ModelClassifierCore
 		FModelClassifierCoreCommands::Register();
 		
 		// Get default config
-		CoreEditorSetting = MakeShareable(GetMutableDefault<UModelClassifierCoreSetting>());
+		CoreEditorSetting = GetMutableDefault<UModelClassifierCoreSetting>();
 		
 		UE_LOG(LogTemp, Log, TEXT("Load ClassifierNNEModelData..."));
-		UClassifierNNEModel* CNNEModel = GetConfig()->ClassifierNNEModelData.LoadSynchronous();
-		ClassifierNNEModelData = MakeShareable(CNNEModel);
+		ClassifierNNEModelData = GetConfig()->ClassifierNNEModelData.LoadSynchronous();
 		
 		UE_LOG(LogTemp, Log, TEXT("Load TextFeaturesAsset..."));
-		UTextFeaturesAsset* TFLoaded = GetConfig()->TextFeaturesAsset.LoadSynchronous();
-		TextFeaturesAsset = MakeShareable(TFLoaded);
+		TextFeaturesAsset = GetConfig()->TextFeaturesAsset.LoadSynchronous();
 		
 		UE_LOG(LogTemp, Log, TEXT("Load ImageEncoderDataAsset..."));
-		UImageEncoderDataAsset* IELoaded = GetConfig()->ImageEncoderDataAsset.LoadSynchronous(); 
-		ImageEncoderDataAsset = MakeShareable(IELoaded);
+		ImageEncoderDataAsset = GetConfig()->ImageEncoderDataAsset.LoadSynchronous();
 		
 		RegisterSettings();
 		
@@ -178,6 +175,11 @@ namespace ModelClassifierCore
 	{
 		// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 		// we call this function before unloading the module.
+		
+		if (CoreEditorSetting.IsValid()) CoreEditorSetting.Reset();
+		if (ClassifierNNEModelData.IsValid()) ClassifierNNEModelData.Reset();
+		if (TextFeaturesAsset.IsValid()) TextFeaturesAsset.Reset();
+		if (ImageEncoderDataAsset.IsValid()) ImageEncoderDataAsset.Reset();
 		
 		UToolMenus::UnRegisterStartupCallback(this);
 
@@ -315,7 +317,7 @@ namespace ModelClassifierCore
 		return Runner->RunExportCLIPImageNormalization(ModelName, OutSavePath);
 	}
 
-	TSharedPtr<UClassifierNNEModel> FModelClassifierCoreModule::GetClassifierNNEModelData()
+	TWeakObjectPtr<UClassifierNNEModel> FModelClassifierCoreModule::GetClassifierNNEModelData()
 	{
 		if (!GetConfig()->ClassifierNNEModelData.IsValid())
 		{
@@ -324,14 +326,13 @@ namespace ModelClassifierCore
 		
 		if (ClassifierNNEModelData == nullptr)
 		{
-			UClassifierNNEModel* CFLoaded = GetConfig()->ClassifierNNEModelData.LoadSynchronous();
-			ClassifierNNEModelData = MakeShareable(CFLoaded);
+			ClassifierNNEModelData = GetConfig()->ClassifierNNEModelData.LoadSynchronous();
 		}
 		
 		return ClassifierNNEModelData;
 	}
 
-	TSharedPtr<UTextFeaturesAsset> FModelClassifierCoreModule::GetTextFeaturesAsset()
+	TWeakObjectPtr<UTextFeaturesAsset> FModelClassifierCoreModule::GetTextFeaturesAsset()
 	{
 		if (!GetConfig()->TextFeaturesAsset.IsValid())
 		{
@@ -340,14 +341,13 @@ namespace ModelClassifierCore
 		
 		if (TextFeaturesAsset == nullptr)
 		{
-			UTextFeaturesAsset* TFLoaded = GetConfig()->TextFeaturesAsset.LoadSynchronous();
-			TextFeaturesAsset = MakeShareable(TFLoaded);
+			TextFeaturesAsset = GetConfig()->TextFeaturesAsset.LoadSynchronous();
 		}
 		
 		return TextFeaturesAsset;
 	}
 
-	TSharedPtr<UImageEncoderDataAsset> FModelClassifierCoreModule::GetImageEncoderDataAsset()
+	TWeakObjectPtr<UImageEncoderDataAsset> FModelClassifierCoreModule::GetImageEncoderDataAsset()
 	{
 		if (!GetConfig()->ImageEncoderDataAsset.IsValid())
 		{
@@ -356,8 +356,7 @@ namespace ModelClassifierCore
 		
 		if (ImageEncoderDataAsset == nullptr)
 		{
-			UImageEncoderDataAsset* IELoaded = GetConfig()->ImageEncoderDataAsset.LoadSynchronous(); 
-			ImageEncoderDataAsset = MakeShareable(IELoaded);
+			ImageEncoderDataAsset = GetConfig()->ImageEncoderDataAsset.LoadSynchronous();
 		}
 		
 		return ImageEncoderDataAsset;
@@ -368,16 +367,16 @@ namespace ModelClassifierCore
 		return PluginPath;
 	}
 
-	TSharedPtr<FModelClassifierData> FModelClassifierCoreModule::CreateClassifierData(FString Path, bool& bIsValid)
+	TSharedPtr<FModelClassifierHandler> FModelClassifierCoreModule::CreateHandler(FString Path, bool& bIsValid)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Creating ModelClassifierData"));
+		UE_LOG(LogTemp, Log, TEXT("Creating handler"));
 		
 		FSoftObjectPath MeshPath(Path);
 		TWeakObjectPtr<UStaticMesh> Mesh = Cast<UStaticMesh>(MeshPath.ResolveObject());
 
 		if (!Mesh.IsValid())
 		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to create a new ModelClassifierData"));
+			UE_LOG(LogTemp, Error, TEXT("Failed to create a new handler"));
 			bIsValid = false;
 			return nullptr;
 		}
@@ -385,7 +384,7 @@ namespace ModelClassifierCore
 		TObjectPtr<UAssetImportData> AssetImportData = Mesh->GetAssetImportData();
 		if (!AssetImportData)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to create a new ModelClassifierData"));
+			UE_LOG(LogTemp, Error, TEXT("Failed to create a new handler"));
 			bIsValid = false;
 			return nullptr;
 		}
@@ -400,8 +399,8 @@ namespace ModelClassifierCore
 		UE_LOG(LogTemp, Log, TEXT("Model import mode : %s"), (bIsFileExists ? (FPaths::GetExtension(AssetLocalPath, false) == "fbx" ||
 			FPaths::GetExtension(AssetLocalPath, false) == "FBX" ? *FString("RawFBX") : *FString("RawOBJ")) : *FString("FBXStream")));
 		
-		UE_LOG(LogTemp, Log, TEXT("Create ModelClassifierData Complete"));
-		return MakeShareable<FModelClassifierData>(new FModelClassifierData(this, Mesh->GetName(), FileType, bIsFileExists ? AssetLocalPath : Path));
+		UE_LOG(LogTemp, Log, TEXT("Create handler complete"));
+		return MakeShareable<FModelClassifierHandler>(new FModelClassifierHandler(this, Mesh->GetName(), FileType, bIsFileExists ? AssetLocalPath : Path));
 	}
 
 	FString FModelClassifierCoreModule::GetThirdPartyAssetPath(int index)

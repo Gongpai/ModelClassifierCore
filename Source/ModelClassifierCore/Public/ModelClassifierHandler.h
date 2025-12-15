@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "NNE/ClassifierNNEModel.h"
 #include "FileType.h"
+#include "ImageFormat.h"
 #include "FBX/ExportFBX.h"
 #include "FBX/StaticMeshCache.h"
 #include "ModelClassifierCore.h"
@@ -19,18 +20,22 @@ namespace ModelClassifierCore
 	class FStaticMeshCache;
 	class FExportFBX;
 	
-	struct MODELCLASSIFIERCORE_API FModelClassifierData
+	struct MODELCLASSIFIERCORE_API FModelClassifierHandler
 	{
+		FModelClassifierCoreModule* Core;
+		
 	private:
 		FString Name;
 		FString ModelPath;
-		EFileType FileType = RawFBX;
 		FString ImageRenderPath;
-		FModelClassifierCoreModule* Core;
+		
+		EFileType FileType = RawFBX;
 		ERotateMode RotateMode = ERotateMode::All;
+		EImageFormat ImageFormat = EImageFormat::RGBA;
+		
 		TArray<std::vector<unsigned char>> PixelData;
-		TArray<FSlateBrush> Brushes;
-		int ResultIndex;
+		
+		int ResultIndex = -1;
 		int RenderCount = 4;
 		ImageSize RenderSize;
 
@@ -41,13 +46,11 @@ namespace ModelClassifierCore
 		void StartClassifier(FString Path, EFileType Type, TFunction<void(int)> OnComplete);
 	
 	public:
-		FModelClassifierData() : Core(nullptr), ResultIndex(0){}
-		FModelClassifierData(FModelClassifierCoreModule* InCore) : Core(InCore), ResultIndex(0) {}
-		FModelClassifierData(FModelClassifierCoreModule* InCore, FString Name, EFileType Type, FString ModelSavePath);
-		~FModelClassifierData()
+		FModelClassifierHandler() : Core(nullptr){}
+		FModelClassifierHandler(FModelClassifierCoreModule* InCore) : Core(InCore){}
+		FModelClassifierHandler(FModelClassifierCoreModule* InCore, FString Name, EFileType Type, FString ModelSavePath);
+		~FModelClassifierHandler()
 		{
-			UE_LOG(LogTemp, Warning, TEXT("**** FModelClassifierData has destroy!"));
-			
 			Core = nullptr;
 		}
 
@@ -70,13 +73,14 @@ namespace ModelClassifierCore
 		ImageSize GetRenderSize();
 
 		int GetResultIndex() const;
-		void SetResultClassifier(const int& InResultIndex);
 
+		void SetImageFormat(EImageFormat InFormat);
 		TArray<std::vector<unsigned char>> GetPixelData();
-		TArray<FSlateBrush> GetImageRenderBrushes();
 
 		FImageRendered& GetImageRenderedAction();
+		void ClearImageRenderedAction();
 		FImageClassified& GetImageClassifiedAction();
+		void ClearImageClassifiedAction();
 		
 	public:
 		static FString GetFileTypeString(EFileType InFileType);

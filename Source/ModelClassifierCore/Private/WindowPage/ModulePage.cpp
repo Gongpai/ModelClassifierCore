@@ -551,51 +551,85 @@ void IModulePage::CreateSettingEntry(TSharedPtr<FSettingData<TSharedPtr<void>>> 
 					Box.ToSharedRef()
 				]
 			];
+			break;
+		}
+		case ProgressBar:
+		{
+			TSharedPtr<SBox> Box = SNew(SBox)
+			.Padding(0.0f)
+			.HeightOverride(35.0f)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.Visibility_Lambda([this, SettingData]() {
+				FString& SettingName = SettingData->Name;
+				FString& Category = SettingData->Category;
+				FString& ModuleName = ModulePageName;
+				FString& ID = SettingData->GetID();
+
+				return GetSettingVisibilityFunction(VisibilitySettingBoxes.Find(SettingName), ModuleName, Category, ID);
+			});
+			
+			TSharedPtr<SBox> EditableTextBox;
+			FSettingComponent::CreateProgressBar(SettingData, EditableTextBox);
+			Box->SetContent(EditableTextBox.ToSharedRef());
+	
+			ModulePanel->GetRightBoxSettings(SettingData->Category).ToSharedRef()->AddSlot()
+			[
+				SNew(SBox)
+				.Padding(0.0f)
+				.HeightOverride(35.0f)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
+				[
+					Box.ToSharedRef()
+				]
+			];
+			break;
 		}
 		default: 
+		{
+			if (SettingData->SettingType == EditableTextBox || SettingData->SettingType == FileEditableTextBox)
 			{
-				if (SettingData->SettingType == EditableTextBox || SettingData->SettingType == FileEditableTextBox)
-				{
-					TSharedPtr<FSettingData<TSharedPtr<FEditableTextBoxData>>> SettingDataString = MakeShared<FSettingData<TSharedPtr<FEditableTextBoxData>>>(
-					StaticCastSharedPtr<FEditableTextBoxData>(SettingData->GetValue()),
-					SettingData->Name,
-					SettingData->SettingType,
-					SettingData->GetAction,
-					SettingData->SetAction
-					);
+				TSharedPtr<FSettingData<TSharedPtr<FEditableTextBoxData>>> SettingDataString = MakeShared<FSettingData<TSharedPtr<FEditableTextBoxData>>>(
+				StaticCastSharedPtr<FEditableTextBoxData>(SettingData->GetValue()),
+				SettingData->Name,
+				SettingData->SettingType,
+				SettingData->GetAction,
+				SettingData->SetAction
+				);
 
-					TSharedPtr<SBox> Box = SNew(SBox)
+				TSharedPtr<SBox> Box = SNew(SBox)
+				.Padding(0.0f)
+				.HeightOverride(35.0f)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
+				.Visibility_Lambda([this, SettingData]() {
+					FString& SettingName = SettingData->Name;
+					FString& Category = SettingData->Category;
+					FString& ModuleName = ModulePageName;
+					FString& ID = SettingData->GetID();
+
+					return GetSettingVisibilityFunction(VisibilitySettingBoxes.Find(SettingName), ModuleName, Category, ID);
+				});
+				
+				TSharedPtr<SBox> EditableTextBox;
+				FSettingComponent::CreateEditableTextBox(SettingDataString, EditableTextBox);
+				Box->SetContent(EditableTextBox.ToSharedRef());
+		
+				ModulePanel->GetRightBoxSettings(SettingData->Category).ToSharedRef()->AddSlot()
+				[
+					SNew(SBox)
 					.Padding(0.0f)
 					.HeightOverride(35.0f)
 					.HAlign(HAlign_Fill)
 					.VAlign(VAlign_Fill)
-					.Visibility_Lambda([this, SettingData]() {
-						FString& SettingName = SettingData->Name;
-						FString& Category = SettingData->Category;
-						FString& ModuleName = ModulePageName;
-						FString& ID = SettingData->GetID();
-	
-						return GetSettingVisibilityFunction(VisibilitySettingBoxes.Find(SettingName), ModuleName, Category, ID);
-					});
-					
-					TSharedPtr<SBox> EditableTextBox;
-					FSettingComponent::CreateEditableTextBox(SettingDataString, EditableTextBox);
-					Box->SetContent(EditableTextBox.ToSharedRef());
-			
-					ModulePanel->GetRightBoxSettings(SettingData->Category).ToSharedRef()->AddSlot()
 					[
-						SNew(SBox)
-						.Padding(0.0f)
-						.HeightOverride(35.0f)
-						.HAlign(HAlign_Fill)
-						.VAlign(VAlign_Fill)
-						[
-							Box.ToSharedRef()
-						]
-					];
-				}
-				
-			break;
+						Box.ToSharedRef()
+					]
+				];
+			}
+			
+		break;
 		}
 	}
 }

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ModelClassifierData.h"
+#include "ModelClassifierHandler.h"
 #include "ModelClassifierCoreSetting.h"
 #include "ModelClassifierCoreCommands.h"
 #include "Modules/ModuleManager.h"
@@ -14,10 +14,10 @@ namespace ModelClassifierCore
 	
 	class MODELCLASSIFIERCORE_API FModelClassifierCoreModule : public IModuleInterface
 	{
-		TSharedPtr<UModelClassifierCoreSetting> CoreEditorSetting;
-		TSharedPtr<UClassifierNNEModel> ClassifierNNEModelData;
-		TSharedPtr<UTextFeaturesAsset> TextFeaturesAsset;
-		TSharedPtr<UImageEncoderDataAsset> ImageEncoderDataAsset;
+		TWeakObjectPtr<UModelClassifierCoreSetting> CoreEditorSetting;
+		TWeakObjectPtr<UClassifierNNEModel> ClassifierNNEModelData;
+		TWeakObjectPtr<UTextFeaturesAsset> TextFeaturesAsset;
+		TWeakObjectPtr<UImageEncoderDataAsset> ImageEncoderDataAsset;
 		
 		FString PluginPath;
 		FString TempRenderPath;
@@ -51,17 +51,17 @@ namespace ModelClassifierCore
 		bool RunExportCLIPImageNormalization(const FString ModelName, FString& OutSavePath);
 		
 		/** Get Model Asset Data */
-		TSharedPtr<UClassifierNNEModel> GetClassifierNNEModelData();
-		TSharedPtr<UTextFeaturesAsset> GetTextFeaturesAsset();
-		TSharedPtr<UImageEncoderDataAsset> GetImageEncoderDataAsset();
-		TSharedPtr<UModelClassifierCoreSetting> GetConfig();
+		TWeakObjectPtr<UClassifierNNEModel> GetClassifierNNEModelData();
+		TWeakObjectPtr<UTextFeaturesAsset> GetTextFeaturesAsset();
+		TWeakObjectPtr<UImageEncoderDataAsset> GetImageEncoderDataAsset();
+		TWeakObjectPtr<UModelClassifierCoreSetting> GetConfig();
 		
 		FString GetPluginPath();
 		FString GetThirdPartyAssetPath(int index);
 		FString GetTempRenderPath();
 		FString GenerateRandomFolderName(int32 Length);
 
-		TSharedPtr<FModelClassifierData> CreateClassifierData(FString Path, bool& bIsValid);
+		TSharedPtr<FModelClassifierHandler> CreateHandler(FString Path, bool& bIsValid);
 		
 	private:
 		TSharedPtr<class FUICommandList> PluginCommands;

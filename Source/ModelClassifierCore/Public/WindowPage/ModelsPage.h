@@ -1,5 +1,6 @@
 #pragma once
 #include "ModulePage.h"
+#include "NNE/NNETextFeatures.h"
 #include "NNE/ImageEncoder/ImageEncoderDataAsset.h"
 #include "NNE/TextFeatures/TextFeaturesAsset.h"
 
@@ -11,6 +12,7 @@ class FModelsPage : public IModulePage
 	FString ClipTokensPath;
 	FString ONNXModelPath;
 	FString ImageEncoderModelName;
+	ModelClassifierCore::FNNETextFeatures* NNETextRuntime;
 	TSharedPtr<FDropDownData> SelectedFileFormat;
 	UTextFeaturesAsset* ImportLabelTextFeaturesAsset;
 	UTextFeaturesAsset* ImportClipTokensTextFeaturesAsset;

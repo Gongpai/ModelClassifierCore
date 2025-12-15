@@ -30,6 +30,7 @@ namespace ModelClassifierCore
 		GLuint colorTex = 0;
 		GLuint depthRBO;
 		ImageSize RenderSize;
+		EImageFormat ImageFormat;
 		FModelClassifierCoreModule* ModelClassifierCoreModule;
 
 		void GetAllShaderFiles();
@@ -47,6 +48,8 @@ namespace ModelClassifierCore
 			UE_LOG(LogTemp, Warning, TEXT("FOpenGL has destroy!"));
 		}
 
+		void SetImageFormat(EImageFormat InImageFormat) { ImageFormat = InImageFormat; }
+		
 		GLFWwindow* CreateContext();
 		GLFWwindow* CreateContext(ImageSize InRenderSize);
 

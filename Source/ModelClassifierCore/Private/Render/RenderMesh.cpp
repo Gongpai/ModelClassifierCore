@@ -9,6 +9,11 @@ namespace ModelClassifierCore
 	{
 	}
 
+	void FRenderMesh::SetImageFormat(EImageFormat InImageFormat)
+	{
+		ImageFormat = InImageFormat;
+	}
+
 	void FRenderMesh::Render(int RenderCount, ERotateMode InRotateMode, TFunction<void(std::vector<unsigned char>, std::vector<float>)> OnImageRendered)
 	{
 		ImageSize& Size = AssimpScene->Size;
@@ -66,6 +71,8 @@ namespace ModelClassifierCore
 			num++;
 			
 			std::vector<unsigned char> OutPixels;
+			OpenGLContext->SetImageFormat(ImageFormat);
+			
 			if (!OpenGLContext.Get()->RenderSceneToFBO(pbrProgram, AssimpScene, OutputPath, Preset, Lights, OutPixels))
 			{
 				UE_LOG(LogTemp, Error, TEXT("Failed to render scene fbo!"));

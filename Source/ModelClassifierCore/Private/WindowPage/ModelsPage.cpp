@@ -372,6 +372,30 @@ void FModelsPage::SetupSetting()
 	Settings.Add(GenerateTextFeaturesButtonSetting.Name, GenerateTextFeaturesButtonSetting);
 	// Generate Text Features Button Action --------------------------------
 	
+	// ProgressBar Text Features Action --------------------------------
+	TSharedPtr<FProgressBarData> ProgressBarTextFeaturesData = MakeShared<FProgressBarData>(FString::Printf(TEXT("Import Label (waiting...)")), 1, 0);
+	TDelegate<TSharedPtr<void>(void)> GetProgressBarTextFeaturesAction;
+	GetProgressBarTextFeaturesAction.BindLambda([ProgressBarTextFeaturesData, this]()
+	{
+		if (NNETextRuntime)
+		{
+			ProgressBarTextFeaturesData->Value = NNETextRuntime->GetProgress();
+			ProgressBarTextFeaturesData->Max = NNETextRuntime->GetMaxProgress();
+			ProgressBarTextFeaturesData->Message = FString::Printf(TEXT("Import Label %d/%d"), 
+				NNETextRuntime->GetProgress() + 1,
+				NNETextRuntime->GetMaxProgress());
+		}
+		return ProgressBarTextFeaturesData;
+	});
+	TDelegate<void(TSharedPtr<void>)> SetProgressBarTextFeaturesAction;
+	SetProgressBarTextFeaturesAction.BindLambda([this](TSharedPtr<void> Value)
+	{
+		
+	});
+	FSettingData<TSharedPtr<void>> SetProgressBarTextFeaturesSetting = FModulePanel::MakeSettingData<FProgressBarData>(ProgressBarTextFeaturesData, "TextFeatures Process", ProgressBar, GetProgressBarTextFeaturesAction, SetProgressBarTextFeaturesAction, "TextFeatures Tool");
+	Settings.Add(SetProgressBarTextFeaturesSetting.Name, SetProgressBarTextFeaturesSetting);
+	// ProgressBar Text Features Action --------------------------------
+	
 	// Assign Image Normalization Action --------------------------------
 	TSharedPtr<FObjectPropertyEntryBoxData> ImageNormalizationData = MakeShared<FObjectPropertyEntryBoxData>(UImageEncoderDataAsset::StaticClass());
 	TDelegate<TSharedPtr<void>(void)> GetImportImageNormalizationAction;

@@ -99,15 +99,12 @@ namespace ModelClassifierCore
 		InputData = Out;
 	}
 
-	bool FNNEImageFeatures::RunClassifyRenderedImage(ImageSize ImageSize, int& OutResultIndex)
+	bool FNNEImageFeatures::RunClassifyRenderedImage(ImageSize ImageSize, int& OutBestIdx)
 	{
 		using namespace UE::NNE;
 		
 		UE_LOG(LogTemp, Log, TEXT("Start Run ClassifyRenderedImage Function"));
-		OutResultIndex = -1;
-		
-		int OutBestIdx = -1;
-		float OutBestSim = -1.0f;
+		OutBestIdx = -1;
 		
 		if (!ImageModelInstance.IsValid())
 		{
@@ -239,13 +236,12 @@ namespace ModelClassifierCore
 		}
 		
 		OutBestIdx = bestIdx;
-		OutBestSim = bestSim;
 
 		TArray<FString> ClipKeys;
 		TextFeaturesAsset->ClipTokens.GetKeys(ClipKeys);
 		FString LabelStr = (bestIdx >= 0 && TextFeaturesAsset->TextFeatures.IsValidIndex(bestIdx)) ? TextFeaturesAsset->ClipTokens[ClipKeys[bestIdx]].Label : FString::Printf(TEXT("%d"), bestIdx);
 		UE_LOG(LogTemp, Log, TEXT("Predicted image -> [%d] %s (sim=%.6f)"), bestIdx, *LabelStr, bestSim);
-
+		
 		return bestIdx >= 0;
 	}
 

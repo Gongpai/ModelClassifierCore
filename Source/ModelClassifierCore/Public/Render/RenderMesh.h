@@ -6,7 +6,7 @@
 #include "Assimp/AssimpScene.h"
 #include "OpenGL/OpenGL.h"
 #include "Utilities/Collections.h"
-#include "Render/Mesh.h"
+#include "ImageFormat.h"
 
 namespace ModelClassifierCore
 {
@@ -24,6 +24,8 @@ namespace ModelClassifierCore
 
 		// Light Data
 		Light Lights;
+		
+		EImageFormat ImageFormat;
 
 		TSharedPtr<FOpenGL> OpenGLContext;
 		TSharedPtr<FAssimpScene> AssimpScene;
@@ -36,6 +38,7 @@ namespace ModelClassifierCore
 			UE_LOG(LogTemp, Warning, TEXT("FRenderMesh has destroy!"));
 		}
 
+		void SetImageFormat(EImageFormat InImageFormat);
 		void Render(int RenderCount, ERotateMode InRotateMode, TFunction<void(std::vector<unsigned char>, std::vector<float>)> OnImageRendered);
 		void SetAssimpScene(TSharedPtr<FAssimpScene> Scene);
 		std::vector<Material> LoadAllMaterials();

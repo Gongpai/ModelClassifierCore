@@ -99,9 +99,9 @@ namespace ModelClassifierCore
 		UE_LOG(LogTemp, Log, TEXT("========================= Start Process Token ========================="));
 	    for (int32 start = 0; start < TotalLabels; start += ChunkSize)
 	    {
-	        curBatch = FMath::Min(ChunkSize, TotalLabels - start);
+	        int32 curBatch = FMath::Min(ChunkSize, TotalLabels - start);
 	    	MaxProgress = TotalLabels * curBatch;
-	    	CurrentProcessLabels = start;
+	    	CurrentProgress = start;
 	    	
 	        // 1) Set input tensor shapes [curBatch, SeqLen]
 	        {
@@ -117,15 +117,13 @@ namespace ModelClassifierCore
 	            }
 	        }
 	    	
-	    	UE_LOG(LogTemp, Log, TEXT("Input tensor shapes [%d, %d] - (%d/%d)"), curBatch, SeqLen, start, TotalLabels);
+	    	//UE_LOG(LogTemp, Log, TEXT("Input tensor shapes [%d, %d] - (%d/%d)"), curBatch, SeqLen, start, TotalLabels);
 
 	        // 2) Flatten tokens for this chunk (make int64 or int32 buffer)
 	        // ensure tokens have expected length
 	        for (int32 i = 0; i < curBatch; ++i)
 	        {
 	            const int32 idx = start + i;
-	        	CurrentProgress++;
-	        	CurrentBatch = i;
 	        	
 	            if (Tokens[idx].Num() != SeqLen)
 	            {
@@ -133,7 +131,7 @@ namespace ModelClassifierCore
 	                return false;
 	            }
 	        	
-	        	UE_LOG(LogTemp, Log, TEXT("Token length match for index %d: %d != %d"), idx, Tokens[idx].Num(), SeqLen);
+	        	//UE_LOG(LogTemp, Log, TEXT("Token length match for index %d: %d != %d"), i, Tokens[idx].Num(), SeqLen);
 	        }
 
 	        // Build contiguous buffer in the expected dtype
@@ -211,7 +209,7 @@ namespace ModelClassifierCore
 	        OutputAllBuffer.AddUninitialized(OutputBuffer.Num());
 	        FMemory::Memcpy(OutputAllBuffer.GetData() + Prev, OutputBuffer.GetData(), OutputBuffer.Num() * sizeof(float));
 	    	
-	    	UE_LOG(LogTemp, Log, TEXT("Append results [Prev : %d, OutputData %f]"), Prev, OutputAllBuffer.GetData()[0]);
+	    	//UE_LOG(LogTemp, Log, TEXT("Append results [Prev : %d, OutputData %f]"), Prev, OutputAllBuffer.GetData()[0]);
 	    }
 		
 		UE_LOG(LogTemp, Log, TEXT("========================= End Process Token ========================="));
@@ -315,6 +313,7 @@ namespace ModelClassifierCore
 	{
 		InputBindings.Reset();
 		OutputBindings.Reset();
+		InputRawBuffers.Empty();
 	}
 
 	int FNNETextFeatures::GetMaxProgress()
@@ -325,25 +324,5 @@ namespace ModelClassifierCore
 	int FNNETextFeatures::GetProgress()
 	{
 		return CurrentProgress;
-	}
-
-	int FNNETextFeatures::GetTotalLabels()
-	{
-		return TotalLabels;
-	}
-
-	int FNNETextFeatures::GetProcessLabel()
-	{
-		return CurrentProcessLabels;
-	}
-
-	int FNNETextFeatures::GetTotalBatch()
-	{
-		return curBatch;
-	}
-
-	int FNNETextFeatures::GetCurrentBatch()
-	{
-		return CurrentBatch;
 	}
 }
