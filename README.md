@@ -140,3 +140,26 @@ git remote add origin https://github.com/Gongpai/ModelClassifierCore.git
 git branch -M main
 git push -uf origin main
 ```
+
+---
+
+## Third-Party Software Notices
+
+This project uses the following third-party libraries as Git submodules:
+
+- assimp (Open Asset Import Library)
+  Licensed under the BSD 3-Clause License.
+  https://github.com/assimp/assimp
+
+- GLM (OpenGL Mathematics)
+  Licensed under the MIT License.
+  https://github.com/g-truc/glm
+
+- GLFW
+  Licensed under the zlib/libpng License.
+  https://github.com/glfw/glfw
+
+Autodesk FBX SDK is NOT redistributed with this repository.
+Users must obtain the FBX SDK separately from Autodesk and agree
+to its license terms.
+
