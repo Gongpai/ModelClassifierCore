@@ -159,7 +159,7 @@ This project uses the following third-party libraries as Git submodules:
   Licensed under the zlib/libpng License.
   https://github.com/glfw/glfw
 
-Autodesk FBX SDK is NOT redistributed with this repository.
+[Autodesk FBX SDK](https://github.com/Gongpai/ModelClassifierCore/tree/main/Source/ThirdParty/ModelClassifierCoreLibrary/fbxsdk) is NOT redistributed with this repository.
 Users must obtain the FBX SDK separately from Autodesk and agree
 to its license terms.
 
