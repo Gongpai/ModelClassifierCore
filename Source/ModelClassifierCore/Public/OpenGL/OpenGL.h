@@ -4,16 +4,6 @@
 #include "Render/Camera.h"
 #include "Render/Material.h"
 #include "Render/Light.h"
-#include "stb/stb_image.h"
-#include "stb/stb_image_write.h"
-#include "glm/gtc/type_ptr.hpp"
-#include <glm/glm.hpp>
-#include <glm/vec3.hpp> // glm::vec3
-#include <glm/vec4.hpp> // glm::vec4
-#include <glm/mat4x4.hpp> // glm::mat4
-#include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
-#include <glm/ext/matrix_clip_space.hpp> // glm::perspective
-#include <glm/ext/scalar_constants.hpp> // glm::pi
 #include "Utilities/Collections.h"
 #include "ModelClassifierCore.h"
 #include "Assimp/AssimpScene.h"

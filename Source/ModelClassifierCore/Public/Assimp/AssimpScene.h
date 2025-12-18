@@ -2,10 +2,8 @@
 #include "assimp/cimport.h"
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
-#include "glm/fwd.hpp"
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
 #include "Render/Material.h"
 #include <memory>
 #include "assimp/Importer.hpp"

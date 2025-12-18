@@ -31,6 +31,9 @@ void FModelsPage::ClosePage()
 
 void FModelsPage::ShutdownPage()
 {
+	NNETextRuntime->Cleanup();
+	NNETextRuntime.Reset();
+	
 	IModulePage::ShutdownPage();
 }
 
@@ -350,7 +353,7 @@ void FModelsPage::SetupSetting()
 		{
 			using namespace ModelClassifierCore;
 		
-			NNETextRuntime = new FNNETextFeatures();
+			NNETextRuntime = MakeShared<FNNETextFeatures>();
 			
 			NNETextRuntime->SetClassifierNNEModelData(ClassifierNNEModelData);
 			NNETextRuntime->SetTextFeaturesAsset(GenerateTextFeaturesAsset);
@@ -375,15 +378,16 @@ void FModelsPage::SetupSetting()
 	// ProgressBar Text Features Action --------------------------------
 	TSharedPtr<FProgressBarData> ProgressBarTextFeaturesData = MakeShared<FProgressBarData>(FString::Printf(TEXT("Import Label (waiting...)")), 1, 0);
 	TDelegate<TSharedPtr<void>(void)> GetProgressBarTextFeaturesAction;
-	GetProgressBarTextFeaturesAction.BindLambda([ProgressBarTextFeaturesData, this]()
+	TWeakPtr<ModelClassifierCore::FNNETextFeatures> WeakNNETextRuntime = NNETextRuntime;
+	GetProgressBarTextFeaturesAction.BindLambda([ProgressBarTextFeaturesData, WeakNNETextRuntime]()
 	{
-		if (NNETextRuntime)
+		if (TSharedPtr<ModelClassifierCore::FNNETextFeatures> Runtime = WeakNNETextRuntime.Pin())
 		{
-			ProgressBarTextFeaturesData->Value = NNETextRuntime->GetProgress();
-			ProgressBarTextFeaturesData->Max = NNETextRuntime->GetMaxProgress();
+			ProgressBarTextFeaturesData->Value = Runtime->GetProgress();
+			ProgressBarTextFeaturesData->Max = Runtime->GetMaxProgress();
 			ProgressBarTextFeaturesData->Message = FString::Printf(TEXT("Import Label %d/%d"), 
-				NNETextRuntime->GetProgress() + 1,
-				NNETextRuntime->GetMaxProgress());
+				Runtime->GetProgress() + 1,
+				Runtime->GetMaxProgress());
 		}
 		return ProgressBarTextFeaturesData;
 	});

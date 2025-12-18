@@ -12,7 +12,7 @@ class FModelsPage : public IModulePage
 	FString ClipTokensPath;
 	FString ONNXModelPath;
 	FString ImageEncoderModelName;
-	ModelClassifierCore::FNNETextFeatures* NNETextRuntime;
+	TSharedPtr<ModelClassifierCore::FNNETextFeatures> NNETextRuntime;
 	TSharedPtr<FDropDownData> SelectedFileFormat;
 	UTextFeaturesAsset* ImportLabelTextFeaturesAsset;
 	UTextFeaturesAsset* ImportClipTokensTextFeaturesAsset;

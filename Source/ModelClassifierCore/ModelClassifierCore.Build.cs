@@ -31,7 +31,6 @@ public class ModelClassifierCore : ModuleRules
 				"GeometryFramework",
 				"GeometryScriptingCore",
 				"Projects",
-				"ModelClassifierCoreLibrary", 
 				"UnrealEd",
 				"InputCore",
 				"PropertyEditor",

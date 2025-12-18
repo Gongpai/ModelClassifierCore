@@ -10,6 +10,10 @@
 
 namespace ModelClassifierCore
 {
+	class FOpenGL;
+	class FModelClassifierCoreModule;
+	class FAssimpScene;
+	
 	class MODELCLASSIFIERCORE_API FRenderMesh
 	{
 		// Viewport size

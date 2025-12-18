@@ -10,7 +10,8 @@
 
 namespace ModelClassifierCore
 {
-	class MODELCLASSIFIERCORE_API FLabels;
+	class FPythonRunner;
+	struct FModelClassifierHandler;
 	
 	class MODELCLASSIFIERCORE_API FModelClassifierCoreModule : public IModuleInterface
 	{

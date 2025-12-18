@@ -1,12 +1,11 @@
-﻿#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#include "OpenGL/OpenGL.h"
+﻿#include "OpenGL/OpenGL.h"
 #include <iostream>
 #include "Assimp/AssimpScene.h"
 #include "assimp/Vertex.h"
 #include "DynamicMesh/DynamicMesh3.h"
 #include "stb/stb_image_write.h"
-#include  "stb/stb_image.h"
+#include "stb/stb_image.h"
+#include "glm/gtc/type_ptr.hpp"
 
 namespace ModelClassifierCore
 {

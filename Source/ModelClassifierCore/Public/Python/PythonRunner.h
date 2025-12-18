@@ -5,6 +5,8 @@
 
 namespace ModelClassifierCore
 {
+	class FModelClassifierCoreModule; 
+	
 	class MODELCLASSIFIERCORE_API FPythonRunner
 	{
 		FModelClassifierCoreModule *Core;
