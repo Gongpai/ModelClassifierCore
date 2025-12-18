@@ -3,7 +3,7 @@
 	url = https://git.kohtnas.com/Kong_root/assimp.git
 [submodule "Source/ThirdParty/ModelClassifierCoreLibrary/glfw"]
 	path = Source/ThirdParty/ModelClassifierCoreLibrary/glfw
-	url = https://github.com/glfw/glfw.git
+	url = https://git.kohtnas.com/Kong_root/glfw.git
 [submodule "Source/ThirdParty/ModelClassifierCoreLibrary/glm"]
 	path = Source/ThirdParty/ModelClassifierCoreLibrary/glm
 	url = https://git.kohtnas.com/publicgroup/glm.git
