@@ -99,7 +99,7 @@ namespace ModelClassifierCore
 	
 	bool FPythonRunner::EnsurePythonEnv(const FString& PythonExe, const FString& EnvPath)
 	{
-		if (!EnvExists(EnvPath))
+		if (!EnvExists(FPaths::Combine(EnvPath, "Scripts/python.exe")))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Environment not found. Creating new env..."));
 			return CreateEnv(PythonExe, EnvPath);

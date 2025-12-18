@@ -378,9 +378,9 @@ void FModelsPage::SetupSetting()
 	// ProgressBar Text Features Action --------------------------------
 	TSharedPtr<FProgressBarData> ProgressBarTextFeaturesData = MakeShared<FProgressBarData>(FString::Printf(TEXT("Import Label (waiting...)")), 1, 0);
 	TDelegate<TSharedPtr<void>(void)> GetProgressBarTextFeaturesAction;
-	TWeakPtr<ModelClassifierCore::FNNETextFeatures> WeakNNETextRuntime = NNETextRuntime;
-	GetProgressBarTextFeaturesAction.BindLambda([ProgressBarTextFeaturesData, WeakNNETextRuntime]()
+	GetProgressBarTextFeaturesAction.BindLambda([ProgressBarTextFeaturesData, this]()
 	{
+		TWeakPtr<ModelClassifierCore::FNNETextFeatures> WeakNNETextRuntime = NNETextRuntime;
 		if (TSharedPtr<ModelClassifierCore::FNNETextFeatures> Runtime = WeakNNETextRuntime.Pin())
 		{
 			ProgressBarTextFeaturesData->Value = Runtime->GetProgress();

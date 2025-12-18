@@ -284,7 +284,7 @@ namespace ModelClassifierCore
 			return false;
 		}
 
-		if (ClassifierNNEModelData == nullptr)
+		if (ClassifierNNEModelData == nullptr || ClassifierNNEModelData->TextEncoderNNEModel == nullptr)
 		{
 			UE_LOG(LogTemp, Error, TEXT("NNEModelData is not valid!"))
 			return false;
