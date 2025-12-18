@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "assimp/cimport.h"
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
 #include <glm/glm.hpp>
